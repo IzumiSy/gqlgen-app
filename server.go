@@ -22,8 +22,6 @@ func main() {
 		port = defaultPort
 	}
 
-	// srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
-
 	gqlHandler := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 	gqlHandler.AddTransport(transport.POST{})
 	gqlHandler.Use(extension.AutomaticPersistedQuery{Cache: &graphql.MapCache{}})
