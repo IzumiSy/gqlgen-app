@@ -45,7 +45,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-    return r.users, nil
+	return r.users, nil
 }
 
 // User is the resolver for the user field.
