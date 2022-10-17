@@ -6,9 +6,15 @@ package graph
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-import "gqlgen-app/graph/model"
+import (
+	"database/sql"
+
+	"gqlgen-app/graph/model"
+)
 
 type Resolver struct {
+	db *sql.DB
+
 	todos []*model.Todo
 	users []*model.User
 }
