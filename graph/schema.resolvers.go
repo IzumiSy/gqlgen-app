@@ -79,7 +79,20 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	return r.users, nil
+	users, err := r.DB.User.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var usersResp []*model.User
+	for _, user := range users {
+		usersResp = append(usersResp, &model.User{
+			ID:   user.ID.String(),
+			Name: user.Name,
+		})
+	}
+
+	return usersResp, nil
 }
 
 // User is the resolver for the user field.
