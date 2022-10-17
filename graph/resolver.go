@@ -8,7 +8,6 @@ package graph
 
 import (
 	"database/sql"
-
 	"gqlgen-app/graph/model"
 )
 
