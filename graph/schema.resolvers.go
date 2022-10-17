@@ -9,24 +9,31 @@ import (
 	"gqlgen-app/graph/generated"
 	"gqlgen-app/graph/model"
 	"math/rand"
+
+	"github.com/google/uuid"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	var currentUser *model.User = nil
-	for _, u := range r.users {
-		if u.ID == input.UserID {
-			currentUser = u
-		}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, err
 	}
-	if currentUser == nil {
-		user := &model.User{
-			ID:   input.UserID,
-			Name: "User" + input.UserID,
-		}
-		r.users = append(r.users, user)
-		currentUser = user
+
+	// TODO: do rollback on error and do commit at last
+	tx, err := r.DB.Tx(ctx)
+	if err != nil {
+		return nil, err
 	}
+
+	currentUser, err := tx.User.Get(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	//
+	// TODO: insert a new user when the user with the ID in the request does not exists on DB
+	//
 
 	todo := &model.Todo{
 		ID:     fmt.Sprintf("T%d", rand.Int()),
