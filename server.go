@@ -25,7 +25,7 @@ func main() {
 		port = defaultPort
 	}
 
-	db, err := ent.Open("sqlite", "./main.db")
+	db, err := ent.Open("sqlite3", "./main.db")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
