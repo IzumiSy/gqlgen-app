@@ -47,7 +47,24 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+	tx, err := r.DB.Tx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser, err := tx.User.Create().SetName(input.Name).Save(ctx)
+	if err != nil {
+		return nil, tryRollback(tx, err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return &model.User{
+		ID:   newUser.ID.String(),
+		Name: newUser.Name,
+	}, nil
 }
 
 // Todos is the resolver for the todos field.
