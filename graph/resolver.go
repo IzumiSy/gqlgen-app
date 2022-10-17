@@ -11,5 +11,5 @@ type Resolver struct {
 	DB *ent.Client
 
 	todos []*model.Todo
-	users []*model.User
+	// users []*model.User
 }

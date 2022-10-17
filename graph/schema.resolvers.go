@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"gqlgen-app/graph/generated"
 	"gqlgen-app/graph/model"
@@ -17,10 +18,9 @@ import (
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	userID, err := uuid.Parse(input.UserID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("User ID must be UUID format")
 	}
 
-	// TODO: do rollback on error and do commit at last
 	tx, err := r.DB.Tx(ctx)
 	if err != nil {
 		return nil, err
@@ -28,18 +28,23 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 
 	currentUser, err := tx.User.Get(ctx, userID)
 	if err != nil {
-		return nil, err
+		return nil, tryRollback(tx, err)
+	} else if currentUser == nil {
+		return nil, errors.New("Specified user ID does not exist")
 	}
 
-	//
-	// TODO: insert a new user when the user with the ID in the request does not exists on DB
-	//
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 
 	todo := &model.Todo{
 		ID:     fmt.Sprintf("T%d", rand.Int()),
 		Text:   input.Text,
-		UserID: currentUser.ID,
-		User:   currentUser,
+		UserID: currentUser.ID.String(),
+		User: &model.User{
+			ID:   currentUser.ID.String(),
+			Name: currentUser.Name,
+		},
 	}
 	r.todos = append(r.todos, todo)
 	return todo, nil
