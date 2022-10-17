@@ -3,12 +3,12 @@
 package graph
 
 import (
-	"database/sql"
+	"gqlgen-app/ent"
 	"gqlgen-app/graph/model"
 )
 
 type Resolver struct {
-	DB *sql.DB
+	DB *ent.Client
 
 	todos []*model.Todo
 	users []*model.User

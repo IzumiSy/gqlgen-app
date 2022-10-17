@@ -1,7 +1,7 @@
 package main
 
 import (
-	"database/sql"
+	"gqlgen-app/ent"
 	"gqlgen-app/graph"
 	"gqlgen-app/graph/generated"
 	"log"
@@ -25,7 +25,7 @@ func main() {
 		port = defaultPort
 	}
 
-	db, err := sql.Open("sqlite3", "./main.db")
+	db, err := ent.Open("sqlite", "./main.db")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
