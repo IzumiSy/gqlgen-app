@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/99designs/gqlgen v0.17.20
+	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/vektah/gqlparser/v2 v2.5.1
 )
 
@@ -14,7 +15,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/huandu/go-sqlbuilder v1.16.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/mitchellh/mapstructure v1.3.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/urfave/cli/v2 v2.8.1 // indirect

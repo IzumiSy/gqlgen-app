@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"gqlgen-app/graph"
 	"gqlgen-app/graph/generated"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -22,7 +25,14 @@ func main() {
 		port = defaultPort
 	}
 
-	gqlHandler := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	db, err := sql.Open("sqlite3", "./main.db")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer db.Close()
+
+	config := generated.Config{Resolvers: &graph.Resolver{DB: db}}
+	gqlHandler := handler.New(generated.NewExecutableSchema(config))
 	gqlHandler.AddTransport(transport.POST{})
 	gqlHandler.Use(extension.AutomaticPersistedQuery{Cache: &graphql.MapCache{}})
 

@@ -12,7 +12,7 @@ import (
 )
 
 type Resolver struct {
-	db *sql.DB
+	DB *sql.DB
 
 	todos []*model.Todo
 	users []*model.User
