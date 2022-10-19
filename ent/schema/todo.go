@@ -26,6 +26,7 @@ func (Todo) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("assignee", User.Type).
 			Ref("todos").
-			Unique(),
+			Unique().
+			Required(),
 	}
 }
