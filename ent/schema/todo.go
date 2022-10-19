@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -18,6 +20,8 @@ func (Todo) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.String("text").NotEmpty(),
 		field.Bool("done").Default(false),
+		field.Time("updated_at").Default(time.Now),
+		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }
 
