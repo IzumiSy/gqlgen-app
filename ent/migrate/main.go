@@ -4,23 +4,17 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"gqlgen-app/drivers"
 	"log"
 	"os"
 
 	_ "ariga.io/atlas/sql/sqlite"
-	"modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 
 	atlas "ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/examples/migration/ent/migrate"
 )
-
-func init() {
-	sql.Register("sqlite3", drivers.SqliteDriver{Driver: &sqlite.Driver{}})
-}
 
 func main() {
 	if len(os.Args) != 2 {
@@ -40,7 +34,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	if err := migrate.NamedDiff(ctx, "sqlite3://main.db", os.Args[1], opts...); err != nil {
+	if err := migrate.NamedDiff(ctx, "sqlite3://main.db?_fk=1", os.Args[1], opts...); err != nil {
 		log.Fatalf("failed generating migration file: %v", err)
 	}
 }

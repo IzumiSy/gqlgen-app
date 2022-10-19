@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"gqlgen-app/drivers"
 	"gqlgen-app/ent"
 	"gqlgen-app/graph"
 	"gqlgen-app/graph/generated"
@@ -10,17 +8,14 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"modernc.org/sqlite"
 )
-
-func init() {
-	sql.Register("sqlite3", drivers.SqliteDriver{Driver: &sqlite.Driver{}})
-}
 
 const defaultPort = "8080"
 
