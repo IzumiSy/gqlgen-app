@@ -61,14 +61,6 @@ func (tc *TodoCreate) SetAssigneeID(id uuid.UUID) *TodoCreate {
 	return tc
 }
 
-// SetNillableAssigneeID sets the "assignee" edge to the User entity by ID if the given value is not nil.
-func (tc *TodoCreate) SetNillableAssigneeID(id *uuid.UUID) *TodoCreate {
-	if id != nil {
-		tc = tc.SetAssigneeID(*id)
-	}
-	return tc
-}
-
 // SetAssignee sets the "assignee" edge to the User entity.
 func (tc *TodoCreate) SetAssignee(u *User) *TodoCreate {
 	return tc.SetAssigneeID(u.ID)
@@ -173,6 +165,9 @@ func (tc *TodoCreate) check() error {
 	}
 	if _, ok := tc.mutation.Done(); !ok {
 		return &ValidationError{Name: "done", err: errors.New(`ent: missing required field "Todo.done"`)}
+	}
+	if _, ok := tc.mutation.AssigneeID(); !ok {
+		return &ValidationError{Name: "assignee", err: errors.New(`ent: missing required edge "Todo.assignee"`)}
 	}
 	return nil
 }

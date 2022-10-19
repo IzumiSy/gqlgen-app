@@ -55,14 +55,6 @@ func (tu *TodoUpdate) SetAssigneeID(id uuid.UUID) *TodoUpdate {
 	return tu
 }
 
-// SetNillableAssigneeID sets the "assignee" edge to the User entity by ID if the given value is not nil.
-func (tu *TodoUpdate) SetNillableAssigneeID(id *uuid.UUID) *TodoUpdate {
-	if id != nil {
-		tu = tu.SetAssigneeID(*id)
-	}
-	return tu
-}
-
 // SetAssignee sets the "assignee" edge to the User entity.
 func (tu *TodoUpdate) SetAssignee(u *User) *TodoUpdate {
 	return tu.SetAssigneeID(u.ID)
@@ -145,6 +137,9 @@ func (tu *TodoUpdate) check() error {
 		if err := todo.TextValidator(v); err != nil {
 			return &ValidationError{Name: "text", err: fmt.Errorf(`ent: validator failed for field "Todo.text": %w`, err)}
 		}
+	}
+	if _, ok := tu.mutation.AssigneeID(); tu.mutation.AssigneeCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Todo.assignee"`)
 	}
 	return nil
 }
@@ -261,14 +256,6 @@ func (tuo *TodoUpdateOne) SetAssigneeID(id uuid.UUID) *TodoUpdateOne {
 	return tuo
 }
 
-// SetNillableAssigneeID sets the "assignee" edge to the User entity by ID if the given value is not nil.
-func (tuo *TodoUpdateOne) SetNillableAssigneeID(id *uuid.UUID) *TodoUpdateOne {
-	if id != nil {
-		tuo = tuo.SetAssigneeID(*id)
-	}
-	return tuo
-}
-
 // SetAssignee sets the "assignee" edge to the User entity.
 func (tuo *TodoUpdateOne) SetAssignee(u *User) *TodoUpdateOne {
 	return tuo.SetAssigneeID(u.ID)
@@ -364,6 +351,9 @@ func (tuo *TodoUpdateOne) check() error {
 		if err := todo.TextValidator(v); err != nil {
 			return &ValidationError{Name: "text", err: fmt.Errorf(`ent: validator failed for field "Todo.text": %w`, err)}
 		}
+	}
+	if _, ok := tuo.mutation.AssigneeID(); tuo.mutation.AssigneeCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Todo.assignee"`)
 	}
 	return nil
 }
