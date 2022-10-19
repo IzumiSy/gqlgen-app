@@ -6,14 +6,13 @@ require (
 	entgo.io/ent v0.11.3
 	github.com/99designs/gqlgen v0.17.20
 	github.com/google/uuid v1.3.0
-	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/pkg/errors v0.9.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 	modernc.org/sqlite v1.19.2
 )
 
 require (
-	ariga.io/atlas v0.7.2-0.20220927111110-867ee0cca56a // indirect
+	ariga.io/atlas v0.7.2 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
