@@ -4,6 +4,7 @@ package ent
 
 import (
 	"gqlgen-app/ent/schema"
+	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
 
 	"github.com/google/uuid"
@@ -13,6 +14,20 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	todoFields := schema.Todo{}.Fields()
+	_ = todoFields
+	// todoDescText is the schema descriptor for text field.
+	todoDescText := todoFields[1].Descriptor()
+	// todo.TextValidator is a validator for the "text" field. It is called by the builders before save.
+	todo.TextValidator = todoDescText.Validators[0].(func(string) error)
+	// todoDescDone is the schema descriptor for done field.
+	todoDescDone := todoFields[2].Descriptor()
+	// todo.DefaultDone holds the default value on creation for the done field.
+	todo.DefaultDone = todoDescDone.Default.(bool)
+	// todoDescID is the schema descriptor for id field.
+	todoDescID := todoFields[0].Descriptor()
+	// todo.DefaultID holds the default value on creation for the id field.
+	todo.DefaultID = todoDescID.Default.(func() uuid.UUID)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.
