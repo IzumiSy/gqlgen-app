@@ -4,11 +4,8 @@ package graph
 
 import (
 	"gqlgen-app/ent"
-	"gqlgen-app/graph/model"
 )
 
 type Resolver struct {
 	DB *ent.Client
-
-	todos []*model.Todo
 }

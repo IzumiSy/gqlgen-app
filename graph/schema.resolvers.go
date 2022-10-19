@@ -6,10 +6,8 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"gqlgen-app/graph/generated"
 	"gqlgen-app/graph/model"
-	"math/rand"
 
 	"github.com/google/uuid"
 )
@@ -33,21 +31,28 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 		return nil, errors.New("Specified user ID does not exist")
 	}
 
+	createdTodo, err := tx.Todo.Create().
+		SetText(input.Text).
+		SetAssignee(currentUser).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
-	todo := &model.Todo{
-		ID:     fmt.Sprintf("T%d", rand.Int()),
-		Text:   input.Text,
-		UserID: currentUser.ID.String(),
+	assignee := createdTodo.Edges.Assignee
+	return &model.Todo{
+		ID:     createdTodo.ID.String(),
+		Text:   createdTodo.Text,
+		UserID: assignee.ID.String(),
 		User: &model.User{
-			ID:   currentUser.ID.String(),
-			Name: currentUser.Name,
+			ID:   assignee.ID.String(),
+			Name: assignee.Name,
 		},
-	}
-	r.todos = append(r.todos, todo)
-	return todo, nil
+	}, nil
 }
 
 // CreateUser is the resolver for the createUser field.
@@ -74,7 +79,26 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	return r.todos, nil
+	todos, err := r.DB.Todo.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var todosResp []*model.Todo
+	for _, todo := range todos {
+		assignee := todo.Edges.Assignee
+		todosResp = append(todosResp, &model.Todo{
+			ID:     todo.ID.String(),
+			Text:   todo.Text,
+			UserID: assignee.ID.String(),
+			User: &model.User{
+				ID:   assignee.ID.String(),
+				Name: assignee.Name,
+			},
+		})
+	}
+
+	return todosResp, nil
 }
 
 // Users is the resolver for the users field.
