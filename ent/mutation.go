@@ -10,6 +10,7 @@ import (
 	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -37,6 +38,8 @@ type TodoMutation struct {
 	id              *uuid.UUID
 	text            *string
 	_done           *bool
+	updated_at      *time.Time
+	created_at      *time.Time
 	clearedFields   map[string]struct{}
 	assignee        *uuid.UUID
 	clearedassignee bool
@@ -221,6 +224,78 @@ func (m *TodoMutation) ResetDone() {
 	m._done = nil
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TodoMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TodoMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Todo entity.
+// If the Todo object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TodoMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *TodoMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TodoMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Todo entity.
+// If the Todo object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TodoMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // SetAssigneeID sets the "assignee" edge to the User entity by id.
 func (m *TodoMutation) SetAssigneeID(id uuid.UUID) {
 	m.assignee = &id
@@ -279,12 +354,18 @@ func (m *TodoMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TodoMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 4)
 	if m.text != nil {
 		fields = append(fields, todo.FieldText)
 	}
 	if m._done != nil {
 		fields = append(fields, todo.FieldDone)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, todo.FieldUpdatedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, todo.FieldCreatedAt)
 	}
 	return fields
 }
@@ -298,6 +379,10 @@ func (m *TodoMutation) Field(name string) (ent.Value, bool) {
 		return m.Text()
 	case todo.FieldDone:
 		return m.Done()
+	case todo.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case todo.FieldCreatedAt:
+		return m.CreatedAt()
 	}
 	return nil, false
 }
@@ -311,6 +396,10 @@ func (m *TodoMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldText(ctx)
 	case todo.FieldDone:
 		return m.OldDone(ctx)
+	case todo.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case todo.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Todo field %s", name)
 }
@@ -333,6 +422,20 @@ func (m *TodoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDone(v)
+		return nil
+	case todo.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case todo.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Todo field %s", name)
@@ -388,6 +491,12 @@ func (m *TodoMutation) ResetField(name string) error {
 		return nil
 	case todo.FieldDone:
 		m.ResetDone()
+		return nil
+	case todo.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case todo.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Todo field %s", name)
@@ -474,6 +583,7 @@ type UserMutation struct {
 	typ           string
 	id            *uuid.UUID
 	name          *string
+	created_at    *time.Time
 	clearedFields map[string]struct{}
 	todos         map[uuid.UUID]struct{}
 	removedtodos  map[uuid.UUID]struct{}
@@ -623,6 +733,42 @@ func (m *UserMutation) ResetName() {
 	m.name = nil
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *UserMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UserMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UserMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // AddTodoIDs adds the "todos" edge to the Todo entity by ids.
 func (m *UserMutation) AddTodoIDs(ids ...uuid.UUID) {
 	if m.todos == nil {
@@ -696,9 +842,12 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 2)
 	if m.name != nil {
 		fields = append(fields, user.FieldName)
+	}
+	if m.created_at != nil {
+		fields = append(fields, user.FieldCreatedAt)
 	}
 	return fields
 }
@@ -710,6 +859,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldName:
 		return m.Name()
+	case user.FieldCreatedAt:
+		return m.CreatedAt()
 	}
 	return nil, false
 }
@@ -721,6 +872,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	switch name {
 	case user.FieldName:
 		return m.OldName(ctx)
+	case user.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -736,6 +889,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case user.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -788,6 +948,9 @@ func (m *UserMutation) ResetField(name string) error {
 	switch name {
 	case user.FieldName:
 		m.ResetName()
+		return nil
+	case user.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

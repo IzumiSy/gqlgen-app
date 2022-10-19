@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -37,6 +38,34 @@ func (tc *TodoCreate) SetDone(b bool) *TodoCreate {
 func (tc *TodoCreate) SetNillableDone(b *bool) *TodoCreate {
 	if b != nil {
 		tc.SetDone(*b)
+	}
+	return tc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (tc *TodoCreate) SetUpdatedAt(t time.Time) *TodoCreate {
+	tc.mutation.SetUpdatedAt(t)
+	return tc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (tc *TodoCreate) SetNillableUpdatedAt(t *time.Time) *TodoCreate {
+	if t != nil {
+		tc.SetUpdatedAt(*t)
+	}
+	return tc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (tc *TodoCreate) SetCreatedAt(t time.Time) *TodoCreate {
+	tc.mutation.SetCreatedAt(t)
+	return tc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (tc *TodoCreate) SetNillableCreatedAt(t *time.Time) *TodoCreate {
+	if t != nil {
+		tc.SetCreatedAt(*t)
 	}
 	return tc
 }
@@ -147,6 +176,14 @@ func (tc *TodoCreate) defaults() {
 		v := todo.DefaultDone
 		tc.mutation.SetDone(v)
 	}
+	if _, ok := tc.mutation.UpdatedAt(); !ok {
+		v := todo.DefaultUpdatedAt()
+		tc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := tc.mutation.CreatedAt(); !ok {
+		v := todo.DefaultCreatedAt()
+		tc.mutation.SetCreatedAt(v)
+	}
 	if _, ok := tc.mutation.ID(); !ok {
 		v := todo.DefaultID()
 		tc.mutation.SetID(v)
@@ -165,6 +202,12 @@ func (tc *TodoCreate) check() error {
 	}
 	if _, ok := tc.mutation.Done(); !ok {
 		return &ValidationError{Name: "done", err: errors.New(`ent: missing required field "Todo.done"`)}
+	}
+	if _, ok := tc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Todo.updated_at"`)}
+	}
+	if _, ok := tc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Todo.created_at"`)}
 	}
 	if _, ok := tc.mutation.AssigneeID(); !ok {
 		return &ValidationError{Name: "assignee", err: errors.New(`ent: missing required edge "Todo.assignee"`)}
@@ -220,6 +263,22 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 			Column: todo.FieldDone,
 		})
 		_node.Done = value
+	}
+	if value, ok := tc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := tc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
 	}
 	if nodes := tc.mutation.AssigneeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

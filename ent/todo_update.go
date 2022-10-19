@@ -9,6 +9,7 @@ import (
 	"gqlgen-app/ent/predicate"
 	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -45,6 +46,20 @@ func (tu *TodoUpdate) SetDone(b bool) *TodoUpdate {
 func (tu *TodoUpdate) SetNillableDone(b *bool) *TodoUpdate {
 	if b != nil {
 		tu.SetDone(*b)
+	}
+	return tu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
+	tu.mutation.SetUpdatedAt(t)
+	return tu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (tu *TodoUpdate) SetNillableUpdatedAt(t *time.Time) *TodoUpdate {
+	if t != nil {
+		tu.SetUpdatedAt(*t)
 	}
 	return tu
 }
@@ -176,6 +191,13 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: todo.FieldDone,
 		})
 	}
+	if value, ok := tu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldUpdatedAt,
+		})
+	}
 	if tu.mutation.AssigneeCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -246,6 +268,20 @@ func (tuo *TodoUpdateOne) SetDone(b bool) *TodoUpdateOne {
 func (tuo *TodoUpdateOne) SetNillableDone(b *bool) *TodoUpdateOne {
 	if b != nil {
 		tuo.SetDone(*b)
+	}
+	return tuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
+	tuo.mutation.SetUpdatedAt(t)
+	return tuo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (tuo *TodoUpdateOne) SetNillableUpdatedAt(t *time.Time) *TodoUpdateOne {
+	if t != nil {
+		tuo.SetUpdatedAt(*t)
 	}
 	return tuo
 }
@@ -405,6 +441,13 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: todo.FieldDone,
+		})
+	}
+	if value, ok := tuo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldUpdatedAt,
 		})
 	}
 	if tuo.mutation.AssigneeCleared() {

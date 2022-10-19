@@ -3,6 +3,8 @@
 package todo
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -15,6 +17,10 @@ const (
 	FieldText = "text"
 	// FieldDone holds the string denoting the done field in the database.
 	FieldDone = "done"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 	// EdgeAssignee holds the string denoting the assignee edge name in mutations.
 	EdgeAssignee = "assignee"
 	// Table holds the table name of the todo in the database.
@@ -33,6 +39,8 @@ var Columns = []string{
 	FieldID,
 	FieldText,
 	FieldDone,
+	FieldUpdatedAt,
+	FieldCreatedAt,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "todos"
@@ -61,6 +69,10 @@ var (
 	TextValidator func(string) error
 	// DefaultDone holds the default value on creation for the "done" field.
 	DefaultDone bool
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

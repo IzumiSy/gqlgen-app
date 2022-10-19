@@ -3,6 +3,8 @@
 package user
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -13,6 +15,8 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
 	// EdgeTodos holds the string denoting the todos edge name in mutations.
 	EdgeTodos = "todos"
 	// Table holds the table name of the user in the database.
@@ -30,6 +34,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldCreatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -45,6 +50,8 @@ func ValidColumn(column string) bool {
 var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
