@@ -10,10 +10,11 @@ import (
 	_ "ariga.io/atlas/sql/sqlite"
 	_ "github.com/mattn/go-sqlite3"
 
+	"gqlgen-app/ent/migrate"
+
 	atlas "ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql/schema"
-	"entgo.io/ent/examples/migration/ent/migrate"
 )
 
 func main() {
