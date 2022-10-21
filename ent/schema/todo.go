@@ -22,7 +22,7 @@ func (Todo) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.String("text").NotEmpty(),
 		field.Bool("done").Default(false),
-		field.Time("updated_at").Default(time.Now),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now()),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }
