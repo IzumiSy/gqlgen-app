@@ -5,3 +5,11 @@ migration/lint:
 .PHONY: migration/run
 migration/run:
 	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate apply --dir="file://ent/migrate/migration" --url="sqlite://main.db?_fk=1"
+
+.PHONY: gqlgen
+gqlgen:
+	go generate ./graph
+
+.PHONY: ent
+ent:
+	go generate ./ent
