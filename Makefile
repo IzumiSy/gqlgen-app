@@ -1,6 +1,10 @@
-.PHONY:
+.PHONY: run
 run:
 	go run server.go
+
+.PHONY: migration/new
+migration/new:
+	go run -mod=mod ent/migrate/main.go $(NAME)
 
 .PHONY: migration/lint
 migration/lint:
