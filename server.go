@@ -2,8 +2,6 @@ package main
 
 import (
 	"gqlgen-app/ent"
-	"gqlgen-app/graph"
-	"gqlgen-app/graph/generated"
 	"log"
 	"net/http"
 	"os"
@@ -31,8 +29,7 @@ func main() {
 	}
 	defer db.Close()
 
-	config := generated.Config{Resolvers: &graph.Resolver{DB: db}}
-	gqlHandler := handler.New(generated.NewExecutableSchema(config))
+	gqlHandler := handler.New(ent.NewSchema(db))
 	gqlHandler.AddTransport(transport.POST{})
 	gqlHandler.Use(extension.AutomaticPersistedQuery{Cache: &graphql.MapCache{}})
 
