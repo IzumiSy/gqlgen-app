@@ -8,10 +8,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
@@ -29,10 +26,13 @@ func main() {
 	}
 	defer db.Close()
 
-	gqlHandler := handler.New(ent.NewSchema(db))
-	gqlHandler.AddTransport(transport.POST{})
-	gqlHandler.Use(extension.AutomaticPersistedQuery{Cache: &graphql.MapCache{}})
+	/*
+		gqlHandler := handler.New(ent.NewSchema(db))
+		gqlHandler.AddTransport(transport.POST{})
+		gqlHandler.Use(extension.AutomaticPersistedQuery{Cache: &graphql.MapCache{}})
+	*/
 
+	gqlHandler := handler.NewDefaultServer(ent.NewSchema(db))
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", gqlHandler)
 
