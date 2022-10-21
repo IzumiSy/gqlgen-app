@@ -5,12 +5,11 @@ package ent
 
 import (
 	"context"
-	"fmt"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input CreateUserInput) (*User, error) {
-	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
+	return r.DB.User.Create().SetInput(input).Save(ctx)
 }
 
 // Mutation returns MutationResolver implementation.
