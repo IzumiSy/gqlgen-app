@@ -20,13 +20,16 @@ import (
 // CategoryQuery is the builder for querying Category entities.
 type CategoryQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Category
-	withTodos  *TodoQuery
+	limit          *int
+	offset         *int
+	unique         *bool
+	order          []OrderFunc
+	fields         []string
+	predicates     []predicate.Category
+	withTodos      *TodoQuery
+	modifiers      []func(*sql.Selector)
+	loadTotal      []func(context.Context, []*Category) error
+	withNamedTodos map[string]*TodoQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -366,6 +369,9 @@ func (cq *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(cq.modifiers) > 0 {
+		_spec.Modifiers = cq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -379,6 +385,18 @@ func (cq *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 		if err := cq.loadTodos(ctx, query, nodes,
 			func(n *Category) { n.Edges.Todos = []*Todo{} },
 			func(n *Category, e *Todo) { n.Edges.Todos = append(n.Edges.Todos, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range cq.withNamedTodos {
+		if err := cq.loadTodos(ctx, query, nodes,
+			func(n *Category) { n.appendNamedTodos(name) },
+			func(n *Category, e *Todo) { n.appendNamedTodos(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for i := range cq.loadTotal {
+		if err := cq.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -446,6 +464,9 @@ func (cq *CategoryQuery) loadTodos(ctx context.Context, query *TodoQuery, nodes 
 
 func (cq *CategoryQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := cq.querySpec()
+	if len(cq.modifiers) > 0 {
+		_spec.Modifiers = cq.modifiers
+	}
 	_spec.Node.Columns = cq.fields
 	if len(cq.fields) > 0 {
 		_spec.Unique = cq.unique != nil && *cq.unique
@@ -542,6 +563,20 @@ func (cq *CategoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedTodos tells the query-builder to eager-load the nodes that are connected to the "todos"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (cq *CategoryQuery) WithNamedTodos(name string, opts ...func(*TodoQuery)) *CategoryQuery {
+	query := &TodoQuery{config: cq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	if cq.withNamedTodos == nil {
+		cq.withNamedTodos = make(map[string]*TodoQuery)
+	}
+	cq.withNamedTodos[name] = query
+	return cq
 }
 
 // CategoryGroupBy is the group-by builder for Category entities.

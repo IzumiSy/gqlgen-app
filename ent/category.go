@@ -33,6 +33,10 @@ type CategoryEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
+	// totalCount holds the count of the edges above.
+	totalCount [1]map[string]int
+
+	namedTodos map[string][]*Todo
 }
 
 // TodosOrErr returns the Todos value or an error if the edge
@@ -128,6 +132,30 @@ func (c *Category) String() string {
 	builder.WriteString(c.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedTodos returns the Todos named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (c *Category) NamedTodos(name string) ([]*Todo, error) {
+	if c.Edges.namedTodos == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := c.Edges.namedTodos[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (c *Category) appendNamedTodos(name string, edges ...*Todo) {
+	if c.Edges.namedTodos == nil {
+		c.Edges.namedTodos = make(map[string][]*Todo)
+	}
+	if len(edges) == 0 {
+		c.Edges.namedTodos[name] = []*Todo{}
+	} else {
+		c.Edges.namedTodos[name] = append(c.Edges.namedTodos[name], edges...)
+	}
 }
 
 // Categories is a parsable slice of Category.

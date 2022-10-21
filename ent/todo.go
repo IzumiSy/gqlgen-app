@@ -41,6 +41,10 @@ type TodoEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
+	// totalCount holds the count of the edges above.
+	totalCount [2]map[string]int
+
+	namedCategories map[string][]*Category
 }
 
 // AssigneeOrErr returns the Assignee value or an error if the edge
@@ -183,6 +187,30 @@ func (t *Todo) String() string {
 	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedCategories returns the Categories named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (t *Todo) NamedCategories(name string) ([]*Category, error) {
+	if t.Edges.namedCategories == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := t.Edges.namedCategories[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (t *Todo) appendNamedCategories(name string, edges ...*Category) {
+	if t.Edges.namedCategories == nil {
+		t.Edges.namedCategories = make(map[string][]*Category)
+	}
+	if len(edges) == 0 {
+		t.Edges.namedCategories[name] = []*Category{}
+	} else {
+		t.Edges.namedCategories[name] = append(t.Edges.namedCategories[name], edges...)
+	}
 }
 
 // Todos is a parsable slice of Todo.
