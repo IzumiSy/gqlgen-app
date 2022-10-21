@@ -32,5 +32,7 @@ func (Todo) Edges() []ent.Edge {
 			Ref("todos").
 			Unique().
 			Required(),
+		edge.From("categories", Category.Type).
+			Ref("todos"),
 	}
 }
