@@ -35,7 +35,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*Todo, error) {
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+    return r.DB.User.Query().All(ctx)
 }
 
 // ID is the resolver for the id field.
