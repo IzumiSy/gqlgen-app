@@ -57,6 +57,14 @@ func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
 	return tu
 }
 
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (tu *TodoUpdate) SetNillableUpdatedAt(t *time.Time) *TodoUpdate {
+	if t != nil {
+		tu.SetUpdatedAt(*t)
+	}
+	return tu
+}
+
 // SetAssigneeID sets the "assignee" edge to the User entity by ID.
 func (tu *TodoUpdate) SetAssigneeID(id uuid.UUID) *TodoUpdate {
 	tu.mutation.SetAssigneeID(id)
@@ -121,7 +129,6 @@ func (tu *TodoUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
-	tu.defaults()
 	if len(tu.hooks) == 0 {
 		if err = tu.check(); err != nil {
 			return 0, err
@@ -173,14 +180,6 @@ func (tu *TodoUpdate) Exec(ctx context.Context) error {
 func (tu *TodoUpdate) ExecX(ctx context.Context) {
 	if err := tu.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (tu *TodoUpdate) defaults() {
-	if _, ok := tu.mutation.UpdatedAt(); !ok {
-		v := todo.UpdateDefaultUpdatedAt()
-		tu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -370,6 +369,14 @@ func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
 	return tuo
 }
 
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (tuo *TodoUpdateOne) SetNillableUpdatedAt(t *time.Time) *TodoUpdateOne {
+	if t != nil {
+		tuo.SetUpdatedAt(*t)
+	}
+	return tuo
+}
+
 // SetAssigneeID sets the "assignee" edge to the User entity by ID.
 func (tuo *TodoUpdateOne) SetAssigneeID(id uuid.UUID) *TodoUpdateOne {
 	tuo.mutation.SetAssigneeID(id)
@@ -441,7 +448,6 @@ func (tuo *TodoUpdateOne) Save(ctx context.Context) (*Todo, error) {
 		err  error
 		node *Todo
 	)
-	tuo.defaults()
 	if len(tuo.hooks) == 0 {
 		if err = tuo.check(); err != nil {
 			return nil, err
@@ -499,14 +505,6 @@ func (tuo *TodoUpdateOne) Exec(ctx context.Context) error {
 func (tuo *TodoUpdateOne) ExecX(ctx context.Context) {
 	if err := tuo.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (tuo *TodoUpdateOne) defaults() {
-	if _, ok := tuo.mutation.UpdatedAt(); !ok {
-		v := todo.UpdateDefaultUpdatedAt()
-		tuo.mutation.SetUpdatedAt(v)
 	}
 }
 
