@@ -12,7 +12,7 @@ import (
 
 func main() {
 	ex, err := entgql.NewExtension(
-		entqql.WithSchemaGenerator(),
+		entgql.WithSchemaGenerator(),
 		entgql.WithSchemaPath("ent.graphql"),
 	)
 	if err != nil {
