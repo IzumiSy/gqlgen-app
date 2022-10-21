@@ -22,7 +22,7 @@ func main() {
 	opts := []entc.Option{
 		entc.Extensions(ex),
 	}
-	if err := entc.Generate("./ent/schema", &gen.Config{}, opts...); err != nil {
+	if err := entc.Generate("./schema", &gen.Config{}, opts...); err != nil {
 		log.Fatalf("Failed running ent codegen: %s", err.Error())
 	}
 }
