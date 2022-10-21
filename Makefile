@@ -1,3 +1,7 @@
+.PHONY:
+run:
+	go run server.go
+
 .PHONY: migration/lint
 migration/lint:
 	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate lint --dev-url="sqlite://main.db" --dir="file://ent/migrate/migration" --latest=1
