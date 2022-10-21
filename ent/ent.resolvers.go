@@ -9,17 +9,17 @@ import (
 )
 
 // ID is the resolver for the id field.
-func (r *categoryResolver) ID(ctx context.Context, obj *Category) (int, error) {
+func (r *categoryResolver) ID(ctx context.Context, obj *Category) (string, error) {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
 
 // Node is the resolver for the node field.
-func (r *queryResolver) Node(ctx context.Context, id int) (Noder, error) {
+func (r *queryResolver) Node(ctx context.Context, id string) (Noder, error) {
 	panic(fmt.Errorf("not implemented: Node - node"))
 }
 
 // Nodes is the resolver for the nodes field.
-func (r *queryResolver) Nodes(ctx context.Context, ids []int) ([]Noder, error) {
+func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]Noder, error) {
 	panic(fmt.Errorf("not implemented: Nodes - nodes"))
 }
 
@@ -39,32 +39,32 @@ func (r *queryResolver) Users(ctx context.Context) ([]*User, error) {
 }
 
 // ID is the resolver for the id field.
-func (r *todoResolver) ID(ctx context.Context, obj *Todo) (int, error) {
+func (r *todoResolver) ID(ctx context.Context, obj *Todo) (string, error) {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
 
 // ID is the resolver for the id field.
-func (r *userResolver) ID(ctx context.Context, obj *User) (int, error) {
+func (r *userResolver) ID(ctx context.Context, obj *User) (string, error) {
 	panic(fmt.Errorf("not implemented: ID - id"))
 }
 
 // TodoIDs is the resolver for the todoIDs field.
-func (r *createCategoryInputResolver) TodoIDs(ctx context.Context, obj *CreateCategoryInput, data []int) error {
+func (r *createCategoryInputResolver) TodoIDs(ctx context.Context, obj *CreateCategoryInput, data []string) error {
 	panic(fmt.Errorf("not implemented: TodoIDs - todoIDs"))
 }
 
 // AssigneeID is the resolver for the assigneeID field.
-func (r *createTodoInputResolver) AssigneeID(ctx context.Context, obj *CreateTodoInput, data int) error {
+func (r *createTodoInputResolver) AssigneeID(ctx context.Context, obj *CreateTodoInput, data string) error {
 	panic(fmt.Errorf("not implemented: AssigneeID - assigneeID"))
 }
 
 // CategoryIDs is the resolver for the categoryIDs field.
-func (r *createTodoInputResolver) CategoryIDs(ctx context.Context, obj *CreateTodoInput, data []int) error {
+func (r *createTodoInputResolver) CategoryIDs(ctx context.Context, obj *CreateTodoInput, data []string) error {
 	panic(fmt.Errorf("not implemented: CategoryIDs - categoryIDs"))
 }
 
 // TodoIDs is the resolver for the todoIDs field.
-func (r *createUserInputResolver) TodoIDs(ctx context.Context, obj *CreateUserInput, data []int) error {
+func (r *createUserInputResolver) TodoIDs(ctx context.Context, obj *CreateUserInput, data []string) error {
 	panic(fmt.Errorf("not implemented: TodoIDs - todoIDs"))
 }
 
