@@ -36,9 +36,11 @@ type Todo struct {
 type TodoEdges struct {
 	// Assignee holds the value of the assignee edge.
 	Assignee *User `json:"assignee,omitempty"`
+	// Categories holds the value of the categories edge.
+	Categories []*Category `json:"categories,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // AssigneeOrErr returns the Assignee value or an error if the edge
@@ -52,6 +54,15 @@ func (e TodoEdges) AssigneeOrErr() (*User, error) {
 		return e.Assignee, nil
 	}
 	return nil, &NotLoadedError{edge: "assignee"}
+}
+
+// CategoriesOrErr returns the Categories value or an error if the edge
+// was not loaded in eager-loading.
+func (e TodoEdges) CategoriesOrErr() ([]*Category, error) {
+	if e.loadedTypes[1] {
+		return e.Categories, nil
+	}
+	return nil, &NotLoadedError{edge: "categories"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -129,6 +140,11 @@ func (t *Todo) assignValues(columns []string, values []any) error {
 // QueryAssignee queries the "assignee" edge of the Todo entity.
 func (t *Todo) QueryAssignee() *UserQuery {
 	return (&TodoClient{config: t.config}).QueryAssignee(t)
+}
+
+// QueryCategories queries the "categories" edge of the Todo entity.
+func (t *Todo) QueryCategories() *CategoryQuery {
+	return (&TodoClient{config: t.config}).QueryCategories(t)
 }
 
 // Update returns a builder for updating this Todo.

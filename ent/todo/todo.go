@@ -23,6 +23,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// EdgeAssignee holds the string denoting the assignee edge name in mutations.
 	EdgeAssignee = "assignee"
+	// EdgeCategories holds the string denoting the categories edge name in mutations.
+	EdgeCategories = "categories"
 	// Table holds the table name of the todo in the database.
 	Table = "todos"
 	// AssigneeTable is the table that holds the assignee relation/edge.
@@ -32,6 +34,11 @@ const (
 	AssigneeInverseTable = "users"
 	// AssigneeColumn is the table column denoting the assignee relation/edge.
 	AssigneeColumn = "user_todos"
+	// CategoriesTable is the table that holds the categories relation/edge. The primary key declared below.
+	CategoriesTable = "category_todos"
+	// CategoriesInverseTable is the table name for the Category entity.
+	// It exists in this package in order to avoid circular dependency with the "category" package.
+	CategoriesInverseTable = "categories"
 )
 
 // Columns holds all SQL columns for todo fields.
@@ -48,6 +55,12 @@ var Columns = []string{
 var ForeignKeys = []string{
 	"user_todos",
 }
+
+var (
+	// CategoriesPrimaryKey and CategoriesColumn2 are the table columns denoting the
+	// primary key for the categories relation (M2M).
+	CategoriesPrimaryKey = []string{"category_id", "todo_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {

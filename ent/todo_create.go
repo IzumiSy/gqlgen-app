@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gqlgen-app/ent/category"
 	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
 	"time"
@@ -93,6 +94,21 @@ func (tc *TodoCreate) SetAssigneeID(id uuid.UUID) *TodoCreate {
 // SetAssignee sets the "assignee" edge to the User entity.
 func (tc *TodoCreate) SetAssignee(u *User) *TodoCreate {
 	return tc.SetAssigneeID(u.ID)
+}
+
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (tc *TodoCreate) AddCategoryIDs(ids ...uuid.UUID) *TodoCreate {
+	tc.mutation.AddCategoryIDs(ids...)
+	return tc
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (tc *TodoCreate) AddCategories(c ...*Category) *TodoCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tc.AddCategoryIDs(ids...)
 }
 
 // Mutation returns the TodoMutation object of the builder.
@@ -298,6 +314,25 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.user_todos = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

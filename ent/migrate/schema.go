@@ -8,6 +8,18 @@ import (
 )
 
 var (
+	// CategoriesColumns holds the columns for the "categories" table.
+	CategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// CategoriesTable holds the schema information for the "categories" table.
+	CategoriesTable = &schema.Table{
+		Name:       "categories",
+		Columns:    CategoriesColumns,
+		PrimaryKey: []*schema.Column{CategoriesColumns[0]},
+	}
 	// TodosColumns holds the columns for the "todos" table.
 	TodosColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
@@ -43,13 +55,42 @@ var (
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 	}
+	// CategoryTodosColumns holds the columns for the "category_todos" table.
+	CategoryTodosColumns = []*schema.Column{
+		{Name: "category_id", Type: field.TypeUUID},
+		{Name: "todo_id", Type: field.TypeUUID},
+	}
+	// CategoryTodosTable holds the schema information for the "category_todos" table.
+	CategoryTodosTable = &schema.Table{
+		Name:       "category_todos",
+		Columns:    CategoryTodosColumns,
+		PrimaryKey: []*schema.Column{CategoryTodosColumns[0], CategoryTodosColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "category_todos_category_id",
+				Columns:    []*schema.Column{CategoryTodosColumns[0]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "category_todos_todo_id",
+				Columns:    []*schema.Column{CategoryTodosColumns[1]},
+				RefColumns: []*schema.Column{TodosColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		CategoriesTable,
 		TodosTable,
 		UsersTable,
+		CategoryTodosTable,
 	}
 )
 
 func init() {
 	TodosTable.ForeignKeys[0].RefTable = UsersTable
+	CategoryTodosTable.ForeignKeys[0].RefTable = CategoriesTable
+	CategoryTodosTable.ForeignKeys[1].RefTable = TodosTable
 }

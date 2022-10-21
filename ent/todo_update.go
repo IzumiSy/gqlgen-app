@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"gqlgen-app/ent/category"
 	"gqlgen-app/ent/predicate"
 	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
@@ -75,6 +76,21 @@ func (tu *TodoUpdate) SetAssignee(u *User) *TodoUpdate {
 	return tu.SetAssigneeID(u.ID)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (tu *TodoUpdate) AddCategoryIDs(ids ...uuid.UUID) *TodoUpdate {
+	tu.mutation.AddCategoryIDs(ids...)
+	return tu
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (tu *TodoUpdate) AddCategories(c ...*Category) *TodoUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tu.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the TodoMutation object of the builder.
 func (tu *TodoUpdate) Mutation() *TodoMutation {
 	return tu.mutation
@@ -84,6 +100,27 @@ func (tu *TodoUpdate) Mutation() *TodoMutation {
 func (tu *TodoUpdate) ClearAssignee() *TodoUpdate {
 	tu.mutation.ClearAssignee()
 	return tu
+}
+
+// ClearCategories clears all "categories" edges to the Category entity.
+func (tu *TodoUpdate) ClearCategories() *TodoUpdate {
+	tu.mutation.ClearCategories()
+	return tu
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (tu *TodoUpdate) RemoveCategoryIDs(ids ...uuid.UUID) *TodoUpdate {
+	tu.mutation.RemoveCategoryIDs(ids...)
+	return tu
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (tu *TodoUpdate) RemoveCategories(c ...*Category) *TodoUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tu.RemoveCategoryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -233,6 +270,60 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if tu.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !tu.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{todo.Label}
@@ -297,6 +388,21 @@ func (tuo *TodoUpdateOne) SetAssignee(u *User) *TodoUpdateOne {
 	return tuo.SetAssigneeID(u.ID)
 }
 
+// AddCategoryIDs adds the "categories" edge to the Category entity by IDs.
+func (tuo *TodoUpdateOne) AddCategoryIDs(ids ...uuid.UUID) *TodoUpdateOne {
+	tuo.mutation.AddCategoryIDs(ids...)
+	return tuo
+}
+
+// AddCategories adds the "categories" edges to the Category entity.
+func (tuo *TodoUpdateOne) AddCategories(c ...*Category) *TodoUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tuo.AddCategoryIDs(ids...)
+}
+
 // Mutation returns the TodoMutation object of the builder.
 func (tuo *TodoUpdateOne) Mutation() *TodoMutation {
 	return tuo.mutation
@@ -306,6 +412,27 @@ func (tuo *TodoUpdateOne) Mutation() *TodoMutation {
 func (tuo *TodoUpdateOne) ClearAssignee() *TodoUpdateOne {
 	tuo.mutation.ClearAssignee()
 	return tuo
+}
+
+// ClearCategories clears all "categories" edges to the Category entity.
+func (tuo *TodoUpdateOne) ClearCategories() *TodoUpdateOne {
+	tuo.mutation.ClearCategories()
+	return tuo
+}
+
+// RemoveCategoryIDs removes the "categories" edge to Category entities by IDs.
+func (tuo *TodoUpdateOne) RemoveCategoryIDs(ids ...uuid.UUID) *TodoUpdateOne {
+	tuo.mutation.RemoveCategoryIDs(ids...)
+	return tuo
+}
+
+// RemoveCategories removes "categories" edges to Category entities.
+func (tuo *TodoUpdateOne) RemoveCategories(c ...*Category) *TodoUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tuo.RemoveCategoryIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -477,6 +604,60 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedCategoriesIDs(); len(nodes) > 0 && !tuo.mutation.CategoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.CategoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   todo.CategoriesTable,
+			Columns: todo.CategoriesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: category.FieldID,
 				},
 			},
 		}

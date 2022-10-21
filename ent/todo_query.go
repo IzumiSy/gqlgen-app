@@ -4,7 +4,9 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
+	"gqlgen-app/ent/category"
 	"gqlgen-app/ent/predicate"
 	"gqlgen-app/ent/todo"
 	"gqlgen-app/ent/user"
@@ -19,14 +21,15 @@ import (
 // TodoQuery is the builder for querying Todo entities.
 type TodoQuery struct {
 	config
-	limit        *int
-	offset       *int
-	unique       *bool
-	order        []OrderFunc
-	fields       []string
-	predicates   []predicate.Todo
-	withAssignee *UserQuery
-	withFKs      bool
+	limit          *int
+	offset         *int
+	unique         *bool
+	order          []OrderFunc
+	fields         []string
+	predicates     []predicate.Todo
+	withAssignee   *UserQuery
+	withCategories *CategoryQuery
+	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,6 +81,28 @@ func (tq *TodoQuery) QueryAssignee() *UserQuery {
 			sqlgraph.From(todo.Table, todo.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, todo.AssigneeTable, todo.AssigneeColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCategories chains the current query on the "categories" edge.
+func (tq *TodoQuery) QueryCategories() *CategoryQuery {
+	query := &CategoryQuery{config: tq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(todo.Table, todo.FieldID, selector),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, todo.CategoriesTable, todo.CategoriesPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -261,12 +286,13 @@ func (tq *TodoQuery) Clone() *TodoQuery {
 		return nil
 	}
 	return &TodoQuery{
-		config:       tq.config,
-		limit:        tq.limit,
-		offset:       tq.offset,
-		order:        append([]OrderFunc{}, tq.order...),
-		predicates:   append([]predicate.Todo{}, tq.predicates...),
-		withAssignee: tq.withAssignee.Clone(),
+		config:         tq.config,
+		limit:          tq.limit,
+		offset:         tq.offset,
+		order:          append([]OrderFunc{}, tq.order...),
+		predicates:     append([]predicate.Todo{}, tq.predicates...),
+		withAssignee:   tq.withAssignee.Clone(),
+		withCategories: tq.withCategories.Clone(),
 		// clone intermediate query.
 		sql:    tq.sql.Clone(),
 		path:   tq.path,
@@ -282,6 +308,17 @@ func (tq *TodoQuery) WithAssignee(opts ...func(*UserQuery)) *TodoQuery {
 		opt(query)
 	}
 	tq.withAssignee = query
+	return tq
+}
+
+// WithCategories tells the query-builder to eager-load the nodes that are connected to
+// the "categories" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TodoQuery) WithCategories(opts ...func(*CategoryQuery)) *TodoQuery {
+	query := &CategoryQuery{config: tq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withCategories = query
 	return tq
 }
 
@@ -354,8 +391,9 @@ func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, e
 		nodes       = []*Todo{}
 		withFKs     = tq.withFKs
 		_spec       = tq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			tq.withAssignee != nil,
+			tq.withCategories != nil,
 		}
 	)
 	if tq.withAssignee != nil {
@@ -388,6 +426,13 @@ func (tq *TodoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Todo, e
 			return nil, err
 		}
 	}
+	if query := tq.withCategories; query != nil {
+		if err := tq.loadCategories(ctx, query, nodes,
+			func(n *Todo) { n.Edges.Categories = []*Category{} },
+			func(n *Todo, e *Category) { n.Edges.Categories = append(n.Edges.Categories, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -416,6 +461,64 @@ func (tq *TodoQuery) loadAssignee(ctx context.Context, query *UserQuery, nodes [
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (tq *TodoQuery) loadCategories(ctx context.Context, query *CategoryQuery, nodes []*Todo, init func(*Todo), assign func(*Todo, *Category)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*Todo)
+	nids := make(map[uuid.UUID]map[*Todo]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(todo.CategoriesTable)
+		s.Join(joinT).On(s.C(category.FieldID), joinT.C(todo.CategoriesPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(todo.CategoriesPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(todo.CategoriesPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	neighbors, err := query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+		assign := spec.Assign
+		values := spec.ScanValues
+		spec.ScanValues = func(columns []string) ([]any, error) {
+			values, err := values(columns[1:])
+			if err != nil {
+				return nil, err
+			}
+			return append([]any{new(uuid.UUID)}, values...), nil
+		}
+		spec.Assign = func(columns []string, values []any) error {
+			outValue := *values[0].(*uuid.UUID)
+			inValue := *values[1].(*uuid.UUID)
+			if nids[inValue] == nil {
+				nids[inValue] = map[*Todo]struct{}{byID[outValue]: struct{}{}}
+				return assign(columns[1:], values[1:])
+			}
+			nids[inValue][byID[outValue]] = struct{}{}
+			return nil
+		}
+	})
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "categories" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil
