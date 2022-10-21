@@ -40,12 +40,12 @@ func (r *queryResolver) Users(ctx context.Context) ([]*User, error) {
 
 // ID is the resolver for the id field.
 func (r *todoResolver) ID(ctx context.Context, obj *Todo) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return obj.ID.String(), nil
 }
 
 // ID is the resolver for the id field.
 func (r *userResolver) ID(ctx context.Context, obj *User) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return obj.ID.String(), nil
 }
 
 // TodoIDs is the resolver for the todoIDs field.
