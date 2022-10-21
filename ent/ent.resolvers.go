@@ -68,6 +68,41 @@ func (r *createUserInputResolver) TodoIDs(ctx context.Context, obj *CreateUserIn
 	panic(fmt.Errorf("not implemented: TodoIDs - todoIDs"))
 }
 
+// AddTodoIDs is the resolver for the addTodoIDs field.
+func (r *updateCategoryInputResolver) AddTodoIDs(ctx context.Context, obj *UpdateCategoryInput, data []string) error {
+	panic(fmt.Errorf("not implemented: AddTodoIDs - addTodoIDs"))
+}
+
+// RemoveTodoIDs is the resolver for the removeTodoIDs field.
+func (r *updateCategoryInputResolver) RemoveTodoIDs(ctx context.Context, obj *UpdateCategoryInput, data []string) error {
+	panic(fmt.Errorf("not implemented: RemoveTodoIDs - removeTodoIDs"))
+}
+
+// AssigneeID is the resolver for the assigneeID field.
+func (r *updateTodoInputResolver) AssigneeID(ctx context.Context, obj *UpdateTodoInput, data *string) error {
+	panic(fmt.Errorf("not implemented: AssigneeID - assigneeID"))
+}
+
+// AddCategoryIDs is the resolver for the addCategoryIDs field.
+func (r *updateTodoInputResolver) AddCategoryIDs(ctx context.Context, obj *UpdateTodoInput, data []string) error {
+	panic(fmt.Errorf("not implemented: AddCategoryIDs - addCategoryIDs"))
+}
+
+// RemoveCategoryIDs is the resolver for the removeCategoryIDs field.
+func (r *updateTodoInputResolver) RemoveCategoryIDs(ctx context.Context, obj *UpdateTodoInput, data []string) error {
+	panic(fmt.Errorf("not implemented: RemoveCategoryIDs - removeCategoryIDs"))
+}
+
+// AddTodoIDs is the resolver for the addTodoIDs field.
+func (r *updateUserInputResolver) AddTodoIDs(ctx context.Context, obj *UpdateUserInput, data []string) error {
+	panic(fmt.Errorf("not implemented: AddTodoIDs - addTodoIDs"))
+}
+
+// RemoveTodoIDs is the resolver for the removeTodoIDs field.
+func (r *updateUserInputResolver) RemoveTodoIDs(ctx context.Context, obj *UpdateUserInput, data []string) error {
+	panic(fmt.Errorf("not implemented: RemoveTodoIDs - removeTodoIDs"))
+}
+
 // Category returns CategoryResolver implementation.
 func (r *Resolver) Category() CategoryResolver { return &categoryResolver{r} }
 
@@ -91,6 +126,17 @@ func (r *Resolver) CreateTodoInput() CreateTodoInputResolver { return &createTod
 // CreateUserInput returns CreateUserInputResolver implementation.
 func (r *Resolver) CreateUserInput() CreateUserInputResolver { return &createUserInputResolver{r} }
 
+// UpdateCategoryInput returns UpdateCategoryInputResolver implementation.
+func (r *Resolver) UpdateCategoryInput() UpdateCategoryInputResolver {
+	return &updateCategoryInputResolver{r}
+}
+
+// UpdateTodoInput returns UpdateTodoInputResolver implementation.
+func (r *Resolver) UpdateTodoInput() UpdateTodoInputResolver { return &updateTodoInputResolver{r} }
+
+// UpdateUserInput returns UpdateUserInputResolver implementation.
+func (r *Resolver) UpdateUserInput() UpdateUserInputResolver { return &updateUserInputResolver{r} }
+
 type categoryResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type todoResolver struct{ *Resolver }
@@ -98,3 +144,6 @@ type userResolver struct{ *Resolver }
 type createCategoryInputResolver struct{ *Resolver }
 type createTodoInputResolver struct{ *Resolver }
 type createUserInputResolver struct{ *Resolver }
+type updateCategoryInputResolver struct{ *Resolver }
+type updateTodoInputResolver struct{ *Resolver }
+type updateUserInputResolver struct{ *Resolver }
