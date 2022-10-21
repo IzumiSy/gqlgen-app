@@ -19,7 +19,7 @@ type Todo struct {
 // Fields of the Todo.
 func (Todo) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).Default(uuid.New),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.String("text").NotEmpty(),
 		field.Bool("done").Default(false),
 		field.Time("updated_at").Default(time.Now),
