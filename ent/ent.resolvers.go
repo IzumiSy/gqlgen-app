@@ -95,12 +95,12 @@ func (r *updateTodoInputResolver) RemoveCategoryIDs(ctx context.Context, obj *Up
 
 // AddTodoIDs is the resolver for the addTodoIDs field.
 func (r *updateUserInputResolver) AddTodoIDs(ctx context.Context, obj *UpdateUserInput, data []string) error {
-	panic(fmt.Errorf("not implemented: AddTodoIDs - addTodoIDs"))
+	return nil // TODO implement here later
 }
 
 // RemoveTodoIDs is the resolver for the removeTodoIDs field.
 func (r *updateUserInputResolver) RemoveTodoIDs(ctx context.Context, obj *UpdateUserInput, data []string) error {
-	panic(fmt.Errorf("not implemented: RemoveTodoIDs - removeTodoIDs"))
+	return nil // TODO implement here later
 }
 
 // Category returns CategoryResolver implementation.
