@@ -13,3 +13,7 @@ gqlgen:
 .PHONY: ent
 ent:
 	go generate ./ent
+
+.PHONY: entity
+entity:
+	go run -mod=mod entgo.io/ent/cmd/ent init $(NAME)
