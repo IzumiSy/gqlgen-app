@@ -29,7 +29,7 @@ func main() {
 
 	opts := []schema.MigrateOption{
 		schema.WithDir(dir),
-		schema.WithMigrationMode(schema.ModeReplay),
+		// schema.WithMigrationMode(schema.ModeReplay),
 		schema.WithDialect(dialect.SQLite),
 		schema.WithFormatter(atlas.DefaultFormatter),
 	}
