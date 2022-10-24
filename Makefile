@@ -6,6 +6,12 @@ run:
 migration/new:
 	go run -mod=mod ent/migrate/main.go $(NAME)
 
+.PHONY: migration/status
+migration/status:
+	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate status \
+		--dir="file://ent/migrate/migration" \
+		--url "sqlite://main.db"
+
 .PHONY: migration/lint
 migration/lint:
 	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate lint \
