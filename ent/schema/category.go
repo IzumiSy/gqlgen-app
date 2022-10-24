@@ -1,13 +1,12 @@
 package schema
 
 import (
-	"time"
-
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
 )
 
@@ -16,12 +15,17 @@ type Category struct {
 	ent.Schema
 }
 
+func (Category) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.CreateTime{},
+	}
+}
+
 // Fields of the Category.
 func (Category) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Unique().Immutable(),
 		field.String("name").NotEmpty(),
-		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }
 
