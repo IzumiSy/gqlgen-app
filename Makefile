@@ -8,20 +8,20 @@ migration/new:
 
 .PHONY: migration/status
 migration/status:
-	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate status \
+	go run -mod=mod ariga.io/atlas/cmd/atlas@master migrate status \
 		--dir="file://ent/migrate/migration" \
 		--url "sqlite://main.db"
 
 .PHONY: migration/lint
 migration/lint:
-	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate lint \
+	go run -mod=mod ariga.io/atlas/cmd/atlas@master migrate lint \
 		--dev-url="sqlite://main.db" \
 		--dir="file://ent/migrate/migration" \
 		--latest=1
 
 .PHONY: migration/run
 migration/run:
-	go run -mod=mod ariga.io/atlas/cmd/atlas@v0.7.0 migrate apply \
+	go run -mod=mod ariga.io/atlas/cmd/atlas@master migrate apply \
 		--dir="file://ent/migrate/migration" \
 		--url="sqlite://main.db?_fk=1"
 
