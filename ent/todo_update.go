@@ -31,6 +31,12 @@ func (tu *TodoUpdate) Where(ps ...predicate.Todo) *TodoUpdate {
 	return tu
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (tu *TodoUpdate) SetUpdateTime(t time.Time) *TodoUpdate {
+	tu.mutation.SetUpdateTime(t)
+	return tu
+}
+
 // SetText sets the "text" field.
 func (tu *TodoUpdate) SetText(s string) *TodoUpdate {
 	tu.mutation.SetText(s)
@@ -47,20 +53,6 @@ func (tu *TodoUpdate) SetDone(b bool) *TodoUpdate {
 func (tu *TodoUpdate) SetNillableDone(b *bool) *TodoUpdate {
 	if b != nil {
 		tu.SetDone(*b)
-	}
-	return tu
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
-	tu.mutation.SetUpdatedAt(t)
-	return tu
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (tu *TodoUpdate) SetNillableUpdatedAt(t *time.Time) *TodoUpdate {
-	if t != nil {
-		tu.SetUpdatedAt(*t)
 	}
 	return tu
 }
@@ -129,6 +121,7 @@ func (tu *TodoUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	tu.defaults()
 	if len(tu.hooks) == 0 {
 		if err = tu.check(); err != nil {
 			return 0, err
@@ -183,6 +176,14 @@ func (tu *TodoUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (tu *TodoUpdate) defaults() {
+	if _, ok := tu.mutation.UpdateTime(); !ok {
+		v := todo.UpdateDefaultUpdateTime()
+		tu.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (tu *TodoUpdate) check() error {
 	if v, ok := tu.mutation.Text(); ok {
@@ -214,6 +215,13 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := tu.mutation.UpdateTime(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldUpdateTime,
+		})
+	}
 	if value, ok := tu.mutation.Text(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -226,13 +234,6 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: todo.FieldDone,
-		})
-	}
-	if value, ok := tu.mutation.UpdatedAt(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: todo.FieldUpdatedAt,
 		})
 	}
 	if tu.mutation.AssigneeCleared() {
@@ -343,6 +344,12 @@ type TodoUpdateOne struct {
 	mutation *TodoMutation
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (tuo *TodoUpdateOne) SetUpdateTime(t time.Time) *TodoUpdateOne {
+	tuo.mutation.SetUpdateTime(t)
+	return tuo
+}
+
 // SetText sets the "text" field.
 func (tuo *TodoUpdateOne) SetText(s string) *TodoUpdateOne {
 	tuo.mutation.SetText(s)
@@ -359,20 +366,6 @@ func (tuo *TodoUpdateOne) SetDone(b bool) *TodoUpdateOne {
 func (tuo *TodoUpdateOne) SetNillableDone(b *bool) *TodoUpdateOne {
 	if b != nil {
 		tuo.SetDone(*b)
-	}
-	return tuo
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
-	tuo.mutation.SetUpdatedAt(t)
-	return tuo
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (tuo *TodoUpdateOne) SetNillableUpdatedAt(t *time.Time) *TodoUpdateOne {
-	if t != nil {
-		tuo.SetUpdatedAt(*t)
 	}
 	return tuo
 }
@@ -448,6 +441,7 @@ func (tuo *TodoUpdateOne) Save(ctx context.Context) (*Todo, error) {
 		err  error
 		node *Todo
 	)
+	tuo.defaults()
 	if len(tuo.hooks) == 0 {
 		if err = tuo.check(); err != nil {
 			return nil, err
@@ -508,6 +502,14 @@ func (tuo *TodoUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (tuo *TodoUpdateOne) defaults() {
+	if _, ok := tuo.mutation.UpdateTime(); !ok {
+		v := todo.UpdateDefaultUpdateTime()
+		tuo.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (tuo *TodoUpdateOne) check() error {
 	if v, ok := tuo.mutation.Text(); ok {
@@ -556,6 +558,13 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 			}
 		}
 	}
+	if value, ok := tuo.mutation.UpdateTime(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldUpdateTime,
+		})
+	}
 	if value, ok := tuo.mutation.Text(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -568,13 +577,6 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 			Type:   field.TypeBool,
 			Value:  value,
 			Column: todo.FieldDone,
-		})
-	}
-	if value, ok := tuo.mutation.UpdatedAt(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: todo.FieldUpdatedAt,
 		})
 	}
 	if tuo.mutation.AssigneeCleared() {

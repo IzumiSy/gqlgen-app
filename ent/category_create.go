@@ -22,23 +22,23 @@ type CategoryCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (cc *CategoryCreate) SetCreateTime(t time.Time) *CategoryCreate {
+	cc.mutation.SetCreateTime(t)
+	return cc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (cc *CategoryCreate) SetNillableCreateTime(t *time.Time) *CategoryCreate {
+	if t != nil {
+		cc.SetCreateTime(*t)
+	}
+	return cc
+}
+
 // SetName sets the "name" field.
 func (cc *CategoryCreate) SetName(s string) *CategoryCreate {
 	cc.mutation.SetName(s)
-	return cc
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (cc *CategoryCreate) SetCreatedAt(t time.Time) *CategoryCreate {
-	cc.mutation.SetCreatedAt(t)
-	return cc
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (cc *CategoryCreate) SetNillableCreatedAt(t *time.Time) *CategoryCreate {
-	if t != nil {
-		cc.SetCreatedAt(*t)
-	}
 	return cc
 }
 
@@ -148,9 +148,9 @@ func (cc *CategoryCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (cc *CategoryCreate) defaults() {
-	if _, ok := cc.mutation.CreatedAt(); !ok {
-		v := category.DefaultCreatedAt()
-		cc.mutation.SetCreatedAt(v)
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		v := category.DefaultCreateTime()
+		cc.mutation.SetCreateTime(v)
 	}
 	if _, ok := cc.mutation.ID(); !ok {
 		v := category.DefaultID()
@@ -160,6 +160,9 @@ func (cc *CategoryCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CategoryCreate) check() error {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Category.create_time"`)}
+	}
 	if _, ok := cc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Category.name"`)}
 	}
@@ -167,9 +170,6 @@ func (cc *CategoryCreate) check() error {
 		if err := category.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Category.name": %w`, err)}
 		}
-	}
-	if _, ok := cc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Category.created_at"`)}
 	}
 	return nil
 }
@@ -207,6 +207,14 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := cc.mutation.CreateTime(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: category.FieldCreateTime,
+		})
+		_node.CreateTime = value
+	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -214,14 +222,6 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 			Column: category.FieldName,
 		})
 		_node.Name = value
-	}
-	if value, ok := cc.mutation.CreatedAt(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: category.FieldCreatedAt,
-		})
-		_node.CreatedAt = value
 	}
 	if nodes := cc.mutation.TodosIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -18,14 +18,14 @@ type Todo struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
+	// UpdateTime holds the value of the "update_time" field.
+	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Text holds the value of the "text" field.
 	Text string `json:"text,omitempty"`
 	// Done holds the value of the "done" field.
 	Done bool `json:"done,omitempty"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TodoQuery when eager-loading is set.
 	Edges      TodoEdges `json:"edges"`
@@ -78,7 +78,7 @@ func (*Todo) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case todo.FieldText:
 			values[i] = new(sql.NullString)
-		case todo.FieldUpdatedAt, todo.FieldCreatedAt:
+		case todo.FieldCreateTime, todo.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
 		case todo.FieldID:
 			values[i] = new(uuid.UUID)
@@ -105,6 +105,18 @@ func (t *Todo) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				t.ID = *value
 			}
+		case todo.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			} else if value.Valid {
+				t.CreateTime = value.Time
+			}
+		case todo.FieldUpdateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field update_time", values[i])
+			} else if value.Valid {
+				t.UpdateTime = value.Time
+			}
 		case todo.FieldText:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field text", values[i])
@@ -116,18 +128,6 @@ func (t *Todo) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field done", values[i])
 			} else if value.Valid {
 				t.Done = value.Bool
-			}
-		case todo.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				t.UpdatedAt = value.Time
-			}
-		case todo.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				t.CreatedAt = value.Time
 			}
 		case todo.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -174,17 +174,17 @@ func (t *Todo) String() string {
 	var builder strings.Builder
 	builder.WriteString("Todo(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", t.ID))
+	builder.WriteString("create_time=")
+	builder.WriteString(t.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("update_time=")
+	builder.WriteString(t.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("text=")
 	builder.WriteString(t.Text)
 	builder.WriteString(", ")
 	builder.WriteString("done=")
 	builder.WriteString(fmt.Sprintf("%v", t.Done))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("created_at=")
-	builder.WriteString(t.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

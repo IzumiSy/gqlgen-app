@@ -16,22 +16,38 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	categoryMixin := schema.Category{}.Mixin()
+	categoryMixinFields0 := categoryMixin[0].Fields()
+	_ = categoryMixinFields0
 	categoryFields := schema.Category{}.Fields()
 	_ = categoryFields
+	// categoryDescCreateTime is the schema descriptor for create_time field.
+	categoryDescCreateTime := categoryMixinFields0[0].Descriptor()
+	// category.DefaultCreateTime holds the default value on creation for the create_time field.
+	category.DefaultCreateTime = categoryDescCreateTime.Default.(func() time.Time)
 	// categoryDescName is the schema descriptor for name field.
 	categoryDescName := categoryFields[1].Descriptor()
 	// category.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	category.NameValidator = categoryDescName.Validators[0].(func(string) error)
-	// categoryDescCreatedAt is the schema descriptor for created_at field.
-	categoryDescCreatedAt := categoryFields[2].Descriptor()
-	// category.DefaultCreatedAt holds the default value on creation for the created_at field.
-	category.DefaultCreatedAt = categoryDescCreatedAt.Default.(func() time.Time)
 	// categoryDescID is the schema descriptor for id field.
 	categoryDescID := categoryFields[0].Descriptor()
 	// category.DefaultID holds the default value on creation for the id field.
 	category.DefaultID = categoryDescID.Default.(func() uuid.UUID)
+	todoMixin := schema.Todo{}.Mixin()
+	todoMixinFields0 := todoMixin[0].Fields()
+	_ = todoMixinFields0
 	todoFields := schema.Todo{}.Fields()
 	_ = todoFields
+	// todoDescCreateTime is the schema descriptor for create_time field.
+	todoDescCreateTime := todoMixinFields0[0].Descriptor()
+	// todo.DefaultCreateTime holds the default value on creation for the create_time field.
+	todo.DefaultCreateTime = todoDescCreateTime.Default.(func() time.Time)
+	// todoDescUpdateTime is the schema descriptor for update_time field.
+	todoDescUpdateTime := todoMixinFields0[1].Descriptor()
+	// todo.DefaultUpdateTime holds the default value on creation for the update_time field.
+	todo.DefaultUpdateTime = todoDescUpdateTime.Default.(func() time.Time)
+	// todo.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	todo.UpdateDefaultUpdateTime = todoDescUpdateTime.UpdateDefault.(func() time.Time)
 	// todoDescText is the schema descriptor for text field.
 	todoDescText := todoFields[1].Descriptor()
 	// todo.TextValidator is a validator for the "text" field. It is called by the builders before save.
@@ -40,28 +56,29 @@ func init() {
 	todoDescDone := todoFields[2].Descriptor()
 	// todo.DefaultDone holds the default value on creation for the done field.
 	todo.DefaultDone = todoDescDone.Default.(bool)
-	// todoDescUpdatedAt is the schema descriptor for updated_at field.
-	todoDescUpdatedAt := todoFields[3].Descriptor()
-	// todo.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	todo.DefaultUpdatedAt = todoDescUpdatedAt.Default.(func() time.Time)
-	// todoDescCreatedAt is the schema descriptor for created_at field.
-	todoDescCreatedAt := todoFields[4].Descriptor()
-	// todo.DefaultCreatedAt holds the default value on creation for the created_at field.
-	todo.DefaultCreatedAt = todoDescCreatedAt.Default.(func() time.Time)
 	// todoDescID is the schema descriptor for id field.
 	todoDescID := todoFields[0].Descriptor()
 	// todo.DefaultID holds the default value on creation for the id field.
 	todo.DefaultID = todoDescID.Default.(func() uuid.UUID)
+	userMixin := schema.User{}.Mixin()
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
 	userFields := schema.User{}.Fields()
 	_ = userFields
+	// userDescCreateTime is the schema descriptor for create_time field.
+	userDescCreateTime := userMixinFields0[0].Descriptor()
+	// user.DefaultCreateTime holds the default value on creation for the create_time field.
+	user.DefaultCreateTime = userDescCreateTime.Default.(func() time.Time)
+	// userDescUpdateTime is the schema descriptor for update_time field.
+	userDescUpdateTime := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdateTime holds the default value on creation for the update_time field.
+	user.DefaultUpdateTime = userDescUpdateTime.Default.(func() time.Time)
+	// user.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	user.UpdateDefaultUpdateTime = userDescUpdateTime.UpdateDefault.(func() time.Time)
 	// userDescName is the schema descriptor for name field.
 	userDescName := userFields[1].Descriptor()
 	// user.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	user.NameValidator = userDescName.Validators[0].(func(string) error)
-	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[2].Descriptor()
-	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
-	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

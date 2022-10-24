@@ -23,6 +23,34 @@ type TodoCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (tc *TodoCreate) SetCreateTime(t time.Time) *TodoCreate {
+	tc.mutation.SetCreateTime(t)
+	return tc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (tc *TodoCreate) SetNillableCreateTime(t *time.Time) *TodoCreate {
+	if t != nil {
+		tc.SetCreateTime(*t)
+	}
+	return tc
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (tc *TodoCreate) SetUpdateTime(t time.Time) *TodoCreate {
+	tc.mutation.SetUpdateTime(t)
+	return tc
+}
+
+// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
+func (tc *TodoCreate) SetNillableUpdateTime(t *time.Time) *TodoCreate {
+	if t != nil {
+		tc.SetUpdateTime(*t)
+	}
+	return tc
+}
+
 // SetText sets the "text" field.
 func (tc *TodoCreate) SetText(s string) *TodoCreate {
 	tc.mutation.SetText(s)
@@ -39,34 +67,6 @@ func (tc *TodoCreate) SetDone(b bool) *TodoCreate {
 func (tc *TodoCreate) SetNillableDone(b *bool) *TodoCreate {
 	if b != nil {
 		tc.SetDone(*b)
-	}
-	return tc
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (tc *TodoCreate) SetUpdatedAt(t time.Time) *TodoCreate {
-	tc.mutation.SetUpdatedAt(t)
-	return tc
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (tc *TodoCreate) SetNillableUpdatedAt(t *time.Time) *TodoCreate {
-	if t != nil {
-		tc.SetUpdatedAt(*t)
-	}
-	return tc
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (tc *TodoCreate) SetCreatedAt(t time.Time) *TodoCreate {
-	tc.mutation.SetCreatedAt(t)
-	return tc
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (tc *TodoCreate) SetNillableCreatedAt(t *time.Time) *TodoCreate {
-	if t != nil {
-		tc.SetCreatedAt(*t)
 	}
 	return tc
 }
@@ -188,17 +188,17 @@ func (tc *TodoCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (tc *TodoCreate) defaults() {
+	if _, ok := tc.mutation.CreateTime(); !ok {
+		v := todo.DefaultCreateTime()
+		tc.mutation.SetCreateTime(v)
+	}
+	if _, ok := tc.mutation.UpdateTime(); !ok {
+		v := todo.DefaultUpdateTime()
+		tc.mutation.SetUpdateTime(v)
+	}
 	if _, ok := tc.mutation.Done(); !ok {
 		v := todo.DefaultDone
 		tc.mutation.SetDone(v)
-	}
-	if _, ok := tc.mutation.UpdatedAt(); !ok {
-		v := todo.DefaultUpdatedAt()
-		tc.mutation.SetUpdatedAt(v)
-	}
-	if _, ok := tc.mutation.CreatedAt(); !ok {
-		v := todo.DefaultCreatedAt()
-		tc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := tc.mutation.ID(); !ok {
 		v := todo.DefaultID()
@@ -208,6 +208,12 @@ func (tc *TodoCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (tc *TodoCreate) check() error {
+	if _, ok := tc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Todo.create_time"`)}
+	}
+	if _, ok := tc.mutation.UpdateTime(); !ok {
+		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "Todo.update_time"`)}
+	}
 	if _, ok := tc.mutation.Text(); !ok {
 		return &ValidationError{Name: "text", err: errors.New(`ent: missing required field "Todo.text"`)}
 	}
@@ -218,12 +224,6 @@ func (tc *TodoCreate) check() error {
 	}
 	if _, ok := tc.mutation.Done(); !ok {
 		return &ValidationError{Name: "done", err: errors.New(`ent: missing required field "Todo.done"`)}
-	}
-	if _, ok := tc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Todo.updated_at"`)}
-	}
-	if _, ok := tc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Todo.created_at"`)}
 	}
 	if _, ok := tc.mutation.AssigneeID(); !ok {
 		return &ValidationError{Name: "assignee", err: errors.New(`ent: missing required edge "Todo.assignee"`)}
@@ -264,6 +264,22 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := tc.mutation.CreateTime(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldCreateTime,
+		})
+		_node.CreateTime = value
+	}
+	if value, ok := tc.mutation.UpdateTime(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: todo.FieldUpdateTime,
+		})
+		_node.UpdateTime = value
+	}
 	if value, ok := tc.mutation.Text(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -279,22 +295,6 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 			Column: todo.FieldDone,
 		})
 		_node.Done = value
-	}
-	if value, ok := tc.mutation.UpdatedAt(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: todo.FieldUpdatedAt,
-		})
-		_node.UpdatedAt = value
-	}
-	if value, ok := tc.mutation.CreatedAt(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: todo.FieldCreatedAt,
-		})
-		_node.CreatedAt = value
 	}
 	if nodes := tc.mutation.AssigneeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

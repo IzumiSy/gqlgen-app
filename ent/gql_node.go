@@ -51,20 +51,20 @@ func (c *Category) Node(ctx context.Context) (node *Node, err error) {
 		Edges:  make([]*Edge, 1),
 	}
 	var buf []byte
-	if buf, err = json.Marshal(c.Name); err != nil {
+	if buf, err = json.Marshal(c.CreateTime); err != nil {
 		return nil, err
 	}
 	node.Fields[0] = &Field{
-		Type:  "string",
-		Name:  "name",
+		Type:  "time.Time",
+		Name:  "create_time",
 		Value: string(buf),
 	}
-	if buf, err = json.Marshal(c.CreatedAt); err != nil {
+	if buf, err = json.Marshal(c.Name); err != nil {
 		return nil, err
 	}
 	node.Fields[1] = &Field{
-		Type:  "time.Time",
-		Name:  "created_at",
+		Type:  "string",
+		Name:  "name",
 		Value: string(buf),
 	}
 	node.Edges[0] = &Edge{
@@ -88,10 +88,26 @@ func (t *Todo) Node(ctx context.Context) (node *Node, err error) {
 		Edges:  make([]*Edge, 2),
 	}
 	var buf []byte
-	if buf, err = json.Marshal(t.Text); err != nil {
+	if buf, err = json.Marshal(t.CreateTime); err != nil {
 		return nil, err
 	}
 	node.Fields[0] = &Field{
+		Type:  "time.Time",
+		Name:  "create_time",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(t.UpdateTime); err != nil {
+		return nil, err
+	}
+	node.Fields[1] = &Field{
+		Type:  "time.Time",
+		Name:  "update_time",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(t.Text); err != nil {
+		return nil, err
+	}
+	node.Fields[2] = &Field{
 		Type:  "string",
 		Name:  "text",
 		Value: string(buf),
@@ -99,25 +115,9 @@ func (t *Todo) Node(ctx context.Context) (node *Node, err error) {
 	if buf, err = json.Marshal(t.Done); err != nil {
 		return nil, err
 	}
-	node.Fields[1] = &Field{
+	node.Fields[3] = &Field{
 		Type:  "bool",
 		Name:  "done",
-		Value: string(buf),
-	}
-	if buf, err = json.Marshal(t.UpdatedAt); err != nil {
-		return nil, err
-	}
-	node.Fields[2] = &Field{
-		Type:  "time.Time",
-		Name:  "updated_at",
-		Value: string(buf),
-	}
-	if buf, err = json.Marshal(t.CreatedAt); err != nil {
-		return nil, err
-	}
-	node.Fields[3] = &Field{
-		Type:  "time.Time",
-		Name:  "created_at",
 		Value: string(buf),
 	}
 	node.Edges[0] = &Edge{
@@ -147,24 +147,32 @@ func (u *User) Node(ctx context.Context) (node *Node, err error) {
 	node = &Node{
 		ID:     u.ID,
 		Type:   "User",
-		Fields: make([]*Field, 2),
+		Fields: make([]*Field, 3),
 		Edges:  make([]*Edge, 1),
 	}
 	var buf []byte
-	if buf, err = json.Marshal(u.Name); err != nil {
+	if buf, err = json.Marshal(u.CreateTime); err != nil {
 		return nil, err
 	}
 	node.Fields[0] = &Field{
-		Type:  "string",
-		Name:  "name",
+		Type:  "time.Time",
+		Name:  "create_time",
 		Value: string(buf),
 	}
-	if buf, err = json.Marshal(u.CreatedAt); err != nil {
+	if buf, err = json.Marshal(u.UpdateTime); err != nil {
 		return nil, err
 	}
 	node.Fields[1] = &Field{
 		Type:  "time.Time",
-		Name:  "created_at",
+		Name:  "update_time",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(u.Name); err != nil {
+		return nil, err
+	}
+	node.Fields[2] = &Field{
+		Type:  "string",
+		Name:  "name",
 		Value: string(buf),
 	}
 	node.Edges[0] = &Edge{
